@@ -1,0 +1,3 @@
+<audio id="alerte-sonore">
+    <source src="{{ url_for('static', filename='audio/alerte.mp3') }}" type="audio/mpeg">
+</audio>

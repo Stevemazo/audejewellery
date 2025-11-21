@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ nom_etablissement }}{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        /* Body & layout */
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        /* Navbar */
+        .navbar-nav .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .navbar-nav .nav-link i {
+            font-size: 1.1em;
+        }
+
+        /* Dropdown hover animation */
+        .dropdown-menu {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Cards hover */
+        .hover-zoom {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hover-zoom:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Buttons with icons */
+        .btn-icon i {
+            margin-right: 6px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #212529;
+            color: white;
+            text-align: center;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+
+            .navbar-nav .nav-link {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-collapse {
+                text-align: center;
+            }
+
+            .navbar-nav {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="bg-dark text-white p-3 shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <h1 class="h5 mb-0">{{ nom_etablissement }}</h1>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-sign-in-alt"></i> Connexion
+            </a>
+        </div>
+    </header>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}"><i class="bi bi-house-door-fill"></i> Accueil</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-auto">
+                    {% if session['user_id'] %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt"></i>
+                            Tableau de bord</a>
+                    </li>
+
+                    {% if session['user_role'] == 'admin' %}
+                    <!-- Menu admin -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                            data-bs-toggle="dropdown">
+                            <i class="fas fa-cogs"></i> Toutes les options
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('manage_jewels') }}"><i class="bi bi-gem"></i>
+                                    Gestion des produits</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('manage_movement') }}"><i
+                                        class="bi bi-box-seam"></i> Gestion de stock</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('supply_low') }}"><i
+                                        class="bi bi-exclamation-triangle-fill"></i> Produits en rupture</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('statistics') }}"><i
+                                        class="bi bi-bar-chart-fill"></i> Statistiques</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('register') }}"><i
+                                        class="bi bi-person-plus-fill"></i> Ajouter un utilisateur</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('profil') }}"><i class="fas fa-user"></i> Mon Profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>
+                            Déconnexion</a>
+                    </li>
+
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i>
+                            Connexion</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="content-wrapper container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="p-4 mt-auto">
+        &copy; 2025 {{ nom_etablissement }} | Tous droits réservés.
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

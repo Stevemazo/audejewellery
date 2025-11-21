@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Gestion d'infos sur la boutique{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Gestion d'infos sur l'établissement</h3>
+
+{% if message %}
+<div class="alert alert-info">{{ message }}</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('add_etablissement') }}" class="row g-2 mb-4">
+    <div class="col-md-6">
+        <label for="">Nom de la boutique</label>
+        <input type="text" name="nom_etablissement" class="form-control" placeholder="Nom d'établissement" required>
+    </div>
+    <div class="col-md-6">
+        <label for="">Adresse de la boutique</label>
+        <input type="text" name="adresse" class="form-control" placeholder="Adresse complète" required>
+    </div>
+    <div class="col-md-6">
+        <label for="">Commune de la boutique</label>
+        <input type="text" name="commune" class="form-control" placeholder="Commune de la boutique" required>
+    </div>
+    <div class="col-md-6">
+        <label for="">Province de la boutique</label>
+        <input type="text" name="province" class="form-control" placeholder="Province d'implantation" required>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">Ajouter</button>
+    </div>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Nom de la boutique</th>
+            <th>Adresse complète</th>
+            <th>Commune</th>
+            <th>Province</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for etablissement in etablissements %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ etablissement.nom_etablissement }}</td>
+            <td>{{ etablissement.adresse }}</td>
+            <td>{{ etablissement.commune }}</td>
+            <td>{{ etablissement.province }}</td>
+            <td>
+                <a href="{{ url_for('edit_etablissement', id=etablissement.id) }}"
+                    class="btn btn-sm btn-warning">Modifier</a>
+                <a href="{{ url_for('delete_etablissement', id=etablissement.id) }}" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Voulez-vous vraiment supprimer...?')">Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

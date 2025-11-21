@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-10">
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="bi bi-speedometer2"></i> Bienvenue, {{ session['user_nom'] }} !
+                </h2>
+                <p class="card-text">Vous êtes connecté en tant que <strong>{{ session['user_role'] }}</strong>.</p>
+
+                <!-- ===== ALERTES DYNAMIQUES ===== -->
+                <div id="alerts" class="my-3">
+                    {% if bijoux_rupture %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Rupture de stock :</strong>
+                        {% for b in bijoux_rupture %}
+                        {{ b.nom }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if bijoux_faible %}
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        <strong>Stock faible :</strong>
+                        {% for b in bijoux_faible %}
+                        {{ b.nom }} ({{ b.quantite }}){% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- ===== ACCÈS RAPIDES ===== -->
+                <h4 class="mt-4"><i class="bi bi-lightning-charge-fill"></i> Accès rapides</h4>
+                <div class="row g-3">
+                    {% if session['user_role'] == 'admin' %}
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('gestion_etablissement') }}"
+                            class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-gear-fill fs-2 mb-2"></i>
+                            Paramètres de la boutique
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('manage_jewels') }}"
+                            class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-easel-fill fs-2 mb-2"></i>
+                            Gestion des Produits
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('manage_movement') }}"
+                            class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-box-seam fs-2 mb-2"></i>
+                            Gestion de stock
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('supply_low') }}"
+                            class="btn btn-outline-danger w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-exclamation-triangle-fill fs-2 mb-2"></i>
+                            Produits en rupture
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('statistics') }}"
+                            class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-bar-chart-line-fill fs-2 mb-2"></i>
+                            Statistiques
+                        </a>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('register') }}"
+                            class="btn btn-outline-secondary w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-person-plus-fill fs-2 mb-2"></i>
+                            Ajouter utilisateur
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('profil') }}"
+                            class="btn btn-outline-dark w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-person-circle fs-2 mb-2"></i>
+                            Mon Profil
+                        </a>
+                    </div>
+
+                    <div class="col-6 col-sm-4 col-md-3">
+                        <a href="{{ url_for('logout') }}"
+                            class="btn btn-outline-danger w-100 h-100 d-flex flex-column align-items-center justify-content-center p-3 shadow-sm">
+                            <i class="bi bi-box-arrow-right fs-2 mb-2"></i>
+                            Déconnexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RESPONSIVE ADJUSTMENTS -->
+<style>
+    @media (max-width: 768px) {
+        #alerts .alert {
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
+        }
+
+        .list-group a.btn {
+            font-size: 0.9rem;
+        }
+    }
+
+    .btn h-100 {
+        min-height: 120px;
+    }
+
+    .btn i.fs-2 {
+        font-size: 1.8rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Bijoux{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="fas fa-gem"></i> Gestion des Bijoux</h3>
+
+    <!-- Bouton Ajouter -->
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+        <i class="bi bi-plus-circle"></i> Ajouter un bijou
+    </button>
+</div>
+
+<!-- TABLEAU DES BIJOUX -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Photo</th>
+                    <th>Nom</th>
+                    <th>Caractéristiques</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                    <th width="150">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bijoux %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+
+                    <td>
+                        {% if b.photo %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ b.photo) }}" width="55" height="55"
+                            class="rounded border" style="object-fit: cover;">
+                        {% else %}
+                        <span class="text-muted">Aucune</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ b.nom }}</td>
+                    <td>{{ b.caracteristiques }}</td>
+                    <td><strong>{{ b.prix }} $</strong></td>
+                    <td><span class="badge bg-info">{{ b.quantite }}</span></td>
+
+                    <td>
+                        <!-- Bouton Modifier -->
+                        <button class="btn btn-sm btn-warning editBtn" data-id="{{ b.id }}" data-nom="{{ b.nom }}"
+                            data-caracteristiques="{{ b.caracteristiques }}" data-prix="{{ b.prix }}"
+                            data-quantite="{{ b.quantite }}" data-photo="{{ b.photo }}" data-bs-toggle="modal"
+                            data-bs-target="#editModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <!-- Bouton Supprimer -->
+                        <a href="{{ url_for('delete_bijou', id=b.id) }}" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Voulez-vous vraiment supprimer ce bijou ?');">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- MODAL AJOUT ------------------------------------------------------------------------------------>
+<div class="modal fade" id="addModal">
+    <div class="modal-dialog">
+        <form action="{{ url_for('add_bijou') }}" method="POST" enctype="multipart/form-data" class="modal-content">
+
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Ajouter un bijou</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <label class="form-label">Nom du bijou :</label>
+                    <input type="text" name="nom" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Caractéristiques :</label>
+                    <textarea name="caracteristiques" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Prix ($) :</label>
+                    <input type="number" name="prix" step="0.01" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Quantité :</label>
+                    <input type="number" name="quantite" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Photo :</label>
+                    <input type="file" name="photo" class="form-control">
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button class="btn btn-primary"><i class="bi bi-save"></i> Enregistrer</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- MODAL EDITION -------------------------------------------------------------------------->
+<div class="modal fade" id="editModal">
+    <div class="modal-dialog">
+        <form id="editForm" method="POST" enctype="multipart/form-data" class="modal-content">
+
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Modifier le bijou</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input type="hidden" name="id" id="edit_id">
+
+                <div class="mb-3">
+                    <label class="form-label">Nom :</label>
+                    <input type="text" name="nom" id="edit_nom" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Caractéristiques :</label>
+                    <textarea name="caracteristiques" id="edit_caracteristiques" class="form-control"
+                        rows="3"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Prix ($) :</label>
+                    <input type="number" name="prix" id="edit_prix" step="0.01" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Quantité :</label>
+                    <input type="number" name="quantite" id="edit_quantite" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Nouvelle Photo :</label>
+                    <input type="file" name="photo" class="form-control">
+                </div>
+
+                <div class="mb-3 text-center">
+                    <img id="edit_preview" src="" width="100" height="100" class="rounded border d-none"
+                        style="object-fit:cover;">
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button class="btn btn-warning"><i class="bi bi-save2"></i> Mettre à jour</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- SCRIPT POUR MODAL DYNAMIQUE ----------------------------------------------------------->
+<script>
+    $(document).ready(function () {
+
+        $(".editBtn").click(function () {
+
+            let id = $(this).data("id");
+            let nom = $(this).data("nom");
+            let caract = $(this).data("caracteristiques");
+            let prix = $(this).data("prix");
+            let quantite = $(this).data("quantite");
+            let photo = $(this).data("photo");
+
+            $("#edit_id").val(id);
+            $("#edit_nom").val(nom);
+            $("#edit_caracteristiques").val(caract);
+            $("#edit_prix").val(prix);
+            $("#edit_quantite").val(quantite);
+
+            // Définir l'action dynamique du formulaire
+            $("#editForm").attr("action", "/edit_bijou/" + id);
+
+            if (photo) {
+                $("#edit_preview")
+                    .attr("src", "/static/uploads/" + photo)
+                    .removeClass("d-none");
+            } else {
+                $("#edit_preview").addClass("d-none");
+            }
+        });
+
+    });
+</script>
+
+{% endblock %}

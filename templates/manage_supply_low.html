@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Bijoux en Rupture de Stock{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-exclamation-triangle-fill"></i> Bijoux en Rupture de Stock</h3>
+    <a href="{{ url_for('manage_jewels') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Retour à la Gestion des Bijoux
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        {% if bijoux %}
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Photo</th>
+                    <th>Nom</th>
+                    <th>Caractéristiques</th>
+                    <th>Prix</th>
+                    <th>Quantité</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bijoux %}
+                <tr class="table-danger">
+                    <td>{{ loop.index }}</td>
+                    <td>
+                        {% if b.photo %}
+                        <img src="{{ url_for('static', filename='uploads/' ~ b.photo) }}" width="55" height="55"
+                            class="rounded border" style="object-fit: cover;">
+                        {% else %}
+                        <span class="text-muted">Aucune</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ b.nom }}</td>
+                    <td>{{ b.caracteristiques }}</td>
+                    <td>{{ b.prix }} $</td>
+                    <td>{{ b.quantite }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-success text-center">
+            Aucun bijou en rupture de stock.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

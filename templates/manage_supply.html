@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Gestion des Mouvements{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-stack"></i> Gestion des Mouvements</h3>
+
+    <!-- Bouton Ajouter -->
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">
+        <i class="bi bi-plus-circle"></i> Ajouter un mouvement
+    </button>
+</div>
+
+<!-- TABLEAU DES MOUVEMENTS -->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Bijou</th>
+                    <th>Type</th>
+                    <th>Quantité</th>
+                    <th>Stock Actuel</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th width="120">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mouvements %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ m.bijou_nom }}</td>
+                    <td>
+                        {% if m.type == 'entree' %}
+                        <span class="badge bg-success">Entrée</span>
+                        {% else %}
+                        <span class="badge bg-danger">Sortie</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ m.quantite }}</td>
+                    <td>{{ m.stock_actuel }}</td>
+                    <td>{{ m.description }}</td>
+                    <td>{{ m.created_at }}</td>
+                    <td>
+                        <!-- Modifier -->
+                        <button class="btn btn-sm btn-warning editBtn" data-id="{{ m.id }}"
+                            data-bijou_id="{{ m.bijou_id }}" data-type="{{ m.type }}" data-quantite="{{ m.quantite }}"
+                            data-description="{{ m.description }}" data-bs-toggle="modal" data-bs-target="#editModal">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+
+                        <!-- Supprimer -->
+                        <a href="{{ url_for('delete_movement', id=m.id) }}" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Voulez-vous vraiment supprimer ce mouvement ?');">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL AJOUT -->
+<div class="modal fade" id="addModal">
+    <div class="modal-dialog">
+        <form action="{{ url_for('add_movement') }}" method="POST" class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Ajouter un mouvement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Bijou :</label>
+                    <select name="bijou_id" class="form-select" required>
+                        <option value="">-- Sélectionner un bijou --</option>
+                        {% for b in bijoux %}
+                        <option value="{{ b.id }}">{{ b.nom }} (Stock: {{ b.quantite }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Type :</label>
+                    <select name="type" class="form-select" required>
+                        <option value="entree">Entrée</option>
+                        <option value="sortie">Sortie</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Quantité :</label>
+                    <input type="number" name="quantite" class="form-control" min="1" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description :</label>
+                    <textarea name="description" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button class="btn btn-primary"><i class="bi bi-save"></i> Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDITION -->
+<div class="modal fade" id="editModal">
+    <div class="modal-dialog">
+        <form action="#" method="POST" id="editForm" class="modal-content">
+            <input type="hidden" name="id" id="edit_id">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Modifier le mouvement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Bijou :</label>
+                    <select name="bijou_id" id="edit_bijou_id" class="form-select" required>
+                        {% for b in bijoux %}
+                        <option value="{{ b.id }}">{{ b.nom }} (Stock: {{ b.quantite }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Type :</label>
+                    <select name="type" id="edit_type" class="form-select" required>
+                        <option value="entree">Entrée</option>
+                        <option value="sortie">Sortie</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Quantité :</label>
+                    <input type="number" name="quantite" id="edit_quantite" class="form-control" min="1" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Description :</label>
+                    <textarea name="description" id="edit_description" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="submit" class="btn btn-warning"><i class="bi bi-save2"></i> Mettre à jour</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- SCRIPT MODAL EDIT -->
+<script>
+    $(document).ready(function () {
+        $(".editBtn").click(function () {
+            let id = $(this).data("id");
+            let bijou_id = $(this).data("bijou_id");
+            let type = $(this).data("type");
+            let quantite = $(this).data("quantite");
+            let description = $(this).data("description");
+
+            $("#edit_id").val(id);
+            $("#edit_bijou_id").val(bijou_id);
+            $("#edit_type").val(type);
+            $("#edit_quantite").val(quantite);
+            $("#edit_description").val(description);
+
+            // Mettre à jour le formulaire pour pointer vers la route Flask
+            $("#editForm").attr("action", "/edit_movement/" + id);
+        });
+    });
+</script>
+
+{% endblock %}

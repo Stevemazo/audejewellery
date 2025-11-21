@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Statistiques des ventes{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3><i class="bi bi-graph-up"></i> Statistiques des Ventes</h3>
+</div>
+
+<!-- FORMULAIRE DE FILTRAGE -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="POST" class="row g-3">
+
+            <div class="col-md-3">
+                <label class="form-label">Période :</label>
+                <select name="periode" class="form-select">
+                    <option value="all" {% if filter_type=='all' %}selected{% endif %}>Toutes</option>
+                    <option value="jour" {% if filter_type=='jour' %}selected{% endif %}>Jour</option>
+                    <option value="semaine" {% if filter_type=='semaine' %}selected{% endif %}>Semaine</option>
+                    <option value="mois" {% if filter_type=='mois' %}selected{% endif %}>Mois</option>
+                    <option value="annee" {% if filter_type=='annee' %}selected{% endif %}>Année</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Bijou :</label>
+                <select name="bijou" class="form-select">
+                    <option value="">Tous les bijoux</option>
+                    {% for b in bijoux %}
+                    <option value="{{ b.id }}" {% if selected_bijou==b.id|string %}selected{% endif %}>
+                        {{ b.nom }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3 align-self-end">
+                <button class="btn btn-primary"><i class="bi bi-filter"></i> Filtrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- GRAPHIQUES -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                Popularité – Bijoux les plus demandés
+            </div>
+            <div class="card-body">
+                <canvas id="popularityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                Ventes – Bijoux les plus vendus
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TABLEAUX DÉTAILLÉS -->
+<div class="row">
+
+    <!-- PLUS VENDUS -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                Top – Bijoux les plus vendus
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Bijou</th>
+                            <th>Mouvements</th>
+                            <th>Sorties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in top_sellers %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ b.nom }}</td>
+                            <td>{{ b.total_sorties }}</td>
+                            <td><strong>{{ b.total_sorties }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                        {% if top_sellers|length == 0 %}
+                        <tr>
+                            <td colspan="4" class="text-center">Aucun mouvement trouvé</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOINS VENDUS -->
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                Bijoux les moins vendus (faible ou aucune sortie)
+            </div>
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Bijou</th>
+                            <th>Mouvements</th>
+                            <th>Sorties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in low_sellers %}
+                        <tr class="table-warning">
+                            <td>{{ loop.index }}</td>
+                            <td>{{ b.nom }}</td>
+                            <td>{{ b.total_sorties }}</td>
+                            <td><strong>{{ b.total_sorties }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                        {% if low_sellers|length == 0 %}
+                        <tr>
+                            <td colspan="4" class="text-center">Aucun mouvement trouvé</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- CHART JS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    const popularityData = {
+        labels: [{% for b in top_sellers %}"{{ b.nom }}", {% endfor %}],
+    datasets: [{
+        data: [{% for b in top_sellers %}{{ b.total_sorties }}, {% endfor %}],
+        backgroundColor: [
+            '#198754', '#20c997', '#2ecc71', '#27ae60', '#1abc9c'
+        ]
+        }]
+    };
+
+    const salesData = {
+        labels: [{% for b in top_sellers %}"{{ b.nom }}", {% endfor %}],
+    datasets: [{
+        data: [{% for b in top_sellers %}{{ b.total_sorties }}, {% endfor %}],
+        backgroundColor: [
+            '#0dcaf0', '#0d6efd', '#6610f2', '#6f42c1', '#4dabf7'
+        ]
+        }]
+    };
+
+    new Chart(document.getElementById('popularityChart'), {
+        type: 'pie',
+        data: popularityData
+    });
+
+    new Chart(document.getElementById('salesChart'), {
+        type: 'pie',
+        data: salesData
+    });
+</script>
+
+{% endblock %}
